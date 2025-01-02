@@ -75,3 +75,8 @@ class InstructorResponse(InstructorBase):
     id: int
     created_at: datetime
     updated_at: datetime
+
+class CoordinatorCreate(BaseModel):
+    email: EmailStr
+    password: str
+    full_name: str

@@ -7,10 +7,18 @@ import AppointmentForm from './components/AppointmentForm';
 import Schedule from './components/Schedule';
 import InstructorManagement from './components/InstructorManagement';
 import VehicleManagement from './components/VehicleManagement';
+import CoordinatorManagement from './components/CoordinatorManagement';
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+const AdminRoute = ({ children }) => {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (user?.role !== 'admin') return <Navigate to="/dashboard" />;
+  return children;
 };
 
 function App() {
@@ -60,7 +68,15 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route
+              path="/coordinators"
+              element={
+                <AdminRoute>
+                  <CoordinatorManagement />
+                </AdminRoute>
+              }
+            />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </div>
       </AuthProvider>

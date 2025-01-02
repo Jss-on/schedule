@@ -53,7 +53,7 @@ def create_default_admin():
                 email='admin@example.com',
                 hashed_password=get_password_hash('admin123'),
                 full_name='Admin User',
-                role='coordinator'
+                role='admin'
             )
             logger.info(f"Created admin user: {admin}")
 
@@ -75,7 +75,7 @@ def init_db():
         logger.info("Creating user_role enum type")
         cursor.execute("""
             DO $$ BEGIN
-                CREATE TYPE user_role AS ENUM ('coordinator', 'instructor');
+                CREATE TYPE user_role AS ENUM ('admin', 'coordinator', 'instructor');
             EXCEPTION
                 WHEN duplicate_object THEN null;
             END $$;
@@ -86,8 +86,10 @@ def init_db():
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 email VARCHAR(255) UNIQUE NOT NULL,
-                password_hash VARCHAR(255) NOT NULL,
-                is_admin BOOLEAN DEFAULT FALSE,
+                hashed_password VARCHAR(255) NOT NULL,
+                full_name VARCHAR(255) NOT NULL,
+                role user_role NOT NULL,
+                is_active BOOLEAN DEFAULT TRUE,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )

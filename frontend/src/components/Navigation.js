@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navigation = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -55,6 +55,18 @@ const Navigation = () => {
             Vehicles
           </Link>
         </li>
+        {user?.role === 'admin' && (
+          <li className="nav-item">
+            <Link
+              to="/coordinators"
+              className={`nav-link ${
+                location.pathname === '/coordinators' ? 'active' : ''
+              }`}
+            >
+              Coordinators
+            </Link>
+          </li>
+        )}
         <li className="nav-item">
           <button onClick={handleLogout} className="btn-secondary">
             Logout

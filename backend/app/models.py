@@ -18,14 +18,16 @@ class User:
     role: str
     id: Optional[int] = None
     is_active: bool = True
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     @staticmethod
     def create(cursor, email: str, hashed_password: str, full_name: str, role: str):
         cursor.execute(
             """
-            INSERT INTO users (email, hashed_password, full_name, role)
-            VALUES (%s, %s, %s, %s)
-            RETURNING id, email, hashed_password, full_name, role, is_active
+            INSERT INTO users (email, hashed_password, full_name, role, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, NOW(), NOW())
+            RETURNING id, email, hashed_password, full_name, role, is_active, created_at, updated_at
             """,
             (email, hashed_password, full_name, role)
         )
