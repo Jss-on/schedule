@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import Navigation from './components/Navigation';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import AppointmentForm from './components/AppointmentForm';
@@ -9,78 +10,97 @@ import InstructorManagement from './components/InstructorManagement';
 import VehicleManagement from './components/VehicleManagement';
 import CoordinatorManagement from './components/CoordinatorManagement';
 
-const PrivateRoute = ({ children }) => {
+const PrivateLayout = ({ children }) => {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  console.log('PrivateLayout - isAuthenticated:', isAuthenticated); // Debug log
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {children}
+      </div>
+    </div>
+  );
 };
 
 const AdminRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
-  if (!isAuthenticated) return <Navigate to="/login" />;
-  if (user?.role !== 'admin') return <Navigate to="/dashboard" />;
-  return children;
+  console.log('AdminRoute - user:', user, 'isAuthenticated:', isAuthenticated); // Debug log
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (!user || user.role !== 'admin') {
+    return <Navigate to="/dashboard" />;
+  }
+
+  return <PrivateLayout>{children}</PrivateLayout>;
 };
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <div className="min-h-screen bg-gray-50">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/appointments/new"
-              element={
-                <PrivateRoute>
-                  <AppointmentForm />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/schedule"
-              element={
-                <PrivateRoute>
-                  <Schedule />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/instructors"
-              element={
-                <PrivateRoute>
-                  <InstructorManagement />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/vehicles"
-              element={
-                <PrivateRoute>
-                  <VehicleManagement />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/coordinators"
-              element={
-                <AdminRoute>
-                  <CoordinatorManagement />
-                </AdminRoute>
-              }
-            />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </div>
-      </AuthProvider>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateLayout>
+                <Dashboard />
+              </PrivateLayout>
+            }
+          />
+          <Route
+            path="/appointments"
+            element={
+              <PrivateLayout>
+                <AppointmentForm />
+              </PrivateLayout>
+            }
+          />
+          <Route
+            path="/schedule"
+            element={
+              <PrivateLayout>
+                <Schedule />
+              </PrivateLayout>
+            }
+          />
+          <Route
+            path="/instructors"
+            element={
+              <AdminRoute>
+                <InstructorManagement />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/vehicles"
+            element={
+              <AdminRoute>
+                <VehicleManagement />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/coordinators"
+            element={
+              <AdminRoute>
+                <CoordinatorManagement />
+              </AdminRoute>
+            }
+          />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

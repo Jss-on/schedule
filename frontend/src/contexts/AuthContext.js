@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
@@ -11,9 +11,56 @@ const api = axios.create({
   },
 });
 
+// Helper function to decode JWT token
+const decodeToken = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Effect to decode token and set user info on mount or token change
+  useEffect(() => {
+    if (token) {
+      try {
+        const decoded = decodeToken(token);
+        console.log('Decoded token:', decoded); // Debug log
+        if (decoded) {
+          setUser({
+            email: decoded.sub,
+            role: decoded.role,
+          });
+          console.log('User role set to:', decoded.role); // Debug log
+          setIsAuthenticated(true);
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        } else {
+          throw new Error('Invalid token');
+        }
+      } catch (error) {
+        console.error('Token decode error:', error);
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    } else {
+      setUser(null);
+      setIsAuthenticated(false);
+      delete api.defaults.headers.common['Authorization'];
+    }
+  }, [token]);
 
   const login = async (email, password) => {
     try {
@@ -24,30 +71,29 @@ export const AuthProvider = ({ children }) => {
 
       if (response.data && response.data.access_token) {
         const { access_token } = response.data;
+        const decoded = decodeToken(access_token);
+        
+        if (!decoded) {
+          throw new Error('Invalid token received');
+        }
+
         localStorage.setItem('token', access_token);
         setToken(access_token);
-        setUser({ email });
+        setUser({
+          email: decoded.sub,
+          role: decoded.role,
+        });
+        setIsAuthenticated(true);
         
         // Set the default Authorization header for future requests
         api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
         
         return true;
-      } else {
-        throw new Error('No access token received');
       }
+      return false;
     } catch (error) {
       console.error('Login error:', error);
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        throw new Error(error.response.data.detail || 'Authentication failed');
-      } else if (error.request) {
-        // The request was made but no response was received
-        throw new Error('No response from server. Please try again later.');
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        throw new Error('Login failed. Please try again.');
-      }
+      return false;
     }
   };
 
@@ -55,30 +101,15 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
-    // Remove the Authorization header
+    setIsAuthenticated(false);
     delete api.defaults.headers.common['Authorization'];
   };
 
-  // Set up axios interceptor for token
-  React.useEffect(() => {
-    if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
-    
-    return () => {
-      delete api.defaults.headers.common['Authorization'];
-    };
-  }, [token]);
-
-  const value = {
-    user,
-    token,
-    isAuthenticated: !!token,
-    login,
-    logout,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, token, isAuthenticated, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {
@@ -88,3 +119,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+export default AuthContext;
