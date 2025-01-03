@@ -12,6 +12,7 @@ A full-stack application for managing test drive appointments, built with FastAP
 - Real-time availability checking
 - Automated notifications
 - Waiting list management
+- Coordinator management dashboard
 
 ## Tech Stack
 
@@ -27,12 +28,33 @@ A full-stack application for managing test drive appointments, built with FastAP
 - React Router
 - Axios (HTTP client)
 - Modern CSS
+- Material-UI components
+- React Calendar
 
 ## Prerequisites
 
 - Python 3.8+
 - Node.js 14+
 - Docker and Docker Compose
+
+## Project Structure
+
+```
+schedule/
+├── frontend/              # React frontend application
+│   ├── src/
+│   │   ├── components/    # React components
+│   │   ├── services/     # API services
+│   │   └── ...
+├── backend/              # FastAPI backend application
+│   ├── app/
+│   │   ├── __pycache__/  # Python cache files (ignored)
+│   │   ├── models/       # Database models
+│   │   ├── routes/       # API endpoints
+│   │   └── ...
+├── docker-compose.yml    # Docker composition config
+└── requirements.txt      # Python dependencies
+```
 
 ## Setup and Running the Application
 
@@ -89,7 +111,7 @@ The application uses Docker volumes for development, so any changes you make to 
 
 ## Environment Variables
 
-The following environment variables are configured in docker-compose.yml:
+The following environment variables are required:
 
 ### Backend
 - DB_HOST=db
@@ -100,17 +122,19 @@ The following environment variables are configured in docker-compose.yml:
 - ALGORITHM=HS256
 - ACCESS_TOKEN_EXPIRE_MINUTES=30
 
+## Version Control
+
+The project uses Git for version control. The following files and directories are ignored:
+
 ### Frontend
-- REACT_APP_API_URL=http://localhost:8000
+- node_modules/
+- build/
+- .env files
+- npm debug logs
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+### Backend
+- __pycache__/
+- virtual environment directories
+- .env files
+- database files
+- migration files (except __init__.py)

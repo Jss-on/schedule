@@ -74,3 +74,4 @@ migrations/*.py
 
 # Optional eslint cache
 .eslintcache
+data

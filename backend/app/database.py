@@ -57,8 +57,26 @@ def create_default_admin():
             )
             logger.info(f"Created admin user: {admin}")
 
+def check_tables_exist() -> bool:
+    """Check if the required tables exist in the database"""
+    with get_db_cursor() as cursor:
+        cursor.execute("""
+            SELECT COUNT(*) = 4 as all_tables_exist
+            FROM information_schema.tables 
+            WHERE table_name IN ('appointments', 'vehicles', 'instructors', 'users')
+            AND table_schema = 'public';
+        """)
+        result = cursor.fetchone()
+        return result['all_tables_exist'] if result else False
+
 def init_db():
     """Initialize the database with required tables"""
+    logger.info("Checking if database needs initialization")
+    
+    if check_tables_exist():
+        logger.info("Database tables already exist, skipping initialization")
+        return
+        
     logger.info("Starting database initialization")
     with get_db_cursor() as cursor:
         # Drop existing tables and types
