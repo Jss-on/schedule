@@ -43,6 +43,21 @@ const AdminRoute = ({ children }) => {
   return <PrivateLayout>{children}</PrivateLayout>;
 };
 
+const StaffRoute = ({ children }) => {
+  const { isAuthenticated, user } = useAuth();
+  console.log('StaffRoute - user:', user, 'isAuthenticated:', isAuthenticated);
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (!user || (user.role !== 'admin' && user.role !== 'coordinator')) {
+    return <Navigate to="/dashboard" />;
+  }
+
+  return <PrivateLayout>{children}</PrivateLayout>;
+};
+
 function App() {
   return (
     <AuthProvider>
@@ -76,17 +91,17 @@ function App() {
           <Route
             path="/instructors"
             element={
-              <AdminRoute>
+              <StaffRoute>
                 <InstructorManagement />
-              </AdminRoute>
+              </StaffRoute>
             }
           />
           <Route
             path="/vehicles"
             element={
-              <AdminRoute>
+              <StaffRoute>
                 <VehicleManagement />
-              </AdminRoute>
+              </StaffRoute>
             }
           />
           <Route
