@@ -80,3 +80,21 @@ class CoordinatorCreate(BaseModel):
     email: EmailStr
     password: str
     full_name: str
+
+class VehicleBase(BaseModel):
+    make: str
+    model: str
+    year: int
+    plate_number: str
+    status: Optional[str] = 'available'
+
+class VehicleCreate(VehicleBase):
+    pass
+
+class Vehicle(VehicleBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

@@ -4,7 +4,7 @@ from .database import get_db_cursor, init_db
 from .models import User, Instructor, Vehicle, Appointment
 from . import schemas
 from .auth import create_access_token, get_current_user, verify_password, ACCESS_TOKEN_EXPIRE_MINUTES
-from .routers import appointments, instructors, auth
+from .routers import appointments, instructors, auth, vehicles
 from datetime import timedelta
 import logging
 
@@ -31,9 +31,10 @@ async def startup_event():
     logger.info("Database initialized")
 
 # Include routers
-app.include_router(auth.router, prefix="/api")
-app.include_router(appointments.router, prefix="/api")
-app.include_router(instructors.router, prefix="/api")
+app.include_router(appointments.router, prefix="/api", tags=["appointments"])
+app.include_router(instructors.router, prefix="/api", tags=["instructors"])
+app.include_router(auth.router, prefix="/api", tags=["auth"])
+app.include_router(vehicles.router, prefix="/api", tags=["vehicles"])
 
 @app.post("/api/auth/login", response_model=schemas.Token)
 async def login(form_data: schemas.UserLogin):
