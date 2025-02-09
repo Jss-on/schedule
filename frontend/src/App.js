@@ -5,6 +5,7 @@ import Navigation from './components/Navigation';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import AppointmentForm from './components/AppointmentForm';
+import AppointmentManagement from './components/AppointmentManagement';
 import Schedule from './components/Schedule';
 import InstructorManagement from './components/InstructorManagement';
 import VehicleManagement from './components/VehicleManagement';
@@ -69,6 +70,14 @@ function App() {
             element={
               <PrivateLayout>
                 <Dashboard />
+              </PrivateLayout>
+            }
+          />
+          <Route
+            path="/appointments/new"
+            element={
+              <PrivateLayout>
+                <AppointmentManagement />
               </PrivateLayout>
             }
           />

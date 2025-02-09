@@ -1,12 +1,21 @@
+version: '3.8'
+
+volumes:
+  postgres_data:
+    name: driving_school_postgres_data
+  pgadmin_data:
+    name: driving_school_pgadmin_data
+
 services:
   db:
     image: postgres:16
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=schedule_db
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+      - ./app/db/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+      - ./app/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
     ports:
       - "5432:5432"
     healthcheck:
@@ -14,46 +23,33 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   pgadmin:
     image: dpage/pgadmin4
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@admin.com
       - PGADMIN_DEFAULT_PASSWORD=admin123
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     ports:
       - "5050:80"
     depends_on:
       - db
+    restart: unless-stopped
 
-  backend:
-    build: ./backend
+  api:
+    build: .
     environment:
       - DB_HOST=db
       - DB_USER=postgres
       - DB_PASSWORD=postgres
-      - DB_NAME=schedule_db
-      - SECRET_KEY=your-secret-key-here
-      - ALGORITHM=HS256
-      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - DB_NAME=driving_school_db
+      - DB_PORT=5432
     volumes:
-      - ./backend:/app
+      - .:/app
     ports:
       - "8000:8000"
     depends_on:
-      db:
-        condition: service_healthy
-
-  frontend:
-    build: ./frontend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    ports:
-      - "3000:3000"
-    environment:
-      - REACT_APP_API_URL=http://localhost:8000
-      - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
-      - WDS_SOCKET_PORT=0
-    depends_on:
-      - backend
+      - db
+    restart: unless-stopped

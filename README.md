@@ -1,140 +1,139 @@
-# Scheduling System
+# Driving School Scheduling System
 
-A full-stack application for managing test drive appointments, built with FastAPI, PostgreSQL, and React.
+A comprehensive API-based system for managing driving school operations, built with FastAPI and PostgreSQL.
 
 ## Features
 
-- Calendar view of appointments
-- Manage test drive appointments
-- Instructor schedule management
-- Vehicle allocation
-- User authentication and authorization
-- Real-time availability checking
-- Automated notifications
-- Waiting list management
-- Coordinator management dashboard
+- Instructor Management
+  - Create and manage instructor profiles
+  - Track instructor qualifications
+  - Manage instructor availability
+  - View instructor schedules
+
+- Student Management
+  - Student registration and profile management
+  - Track student progress
+  - View lesson history
+  - Manage student packages
+
+- Package Management
+  - Create and manage lesson packages
+  - Track package hours
+  - Assign packages to students
+  - Monitor remaining hours
+
+- Lesson Scheduling
+  - Schedule driving lessons
+  - Prevent double-booking
+  - Check instructor and vehicle availability
+  - Handle lesson cancellations
+  - View available time slots
+
+- Vehicle Management
+  - Track vehicle availability
+  - Manage vehicle maintenance
+  - Vehicle type assignment
 
 ## Tech Stack
 
-### Backend
 - FastAPI (Python web framework)
 - PostgreSQL (Database)
-- psycopg2 (PostgreSQL adapter)
-- JWT Authentication
 - Pydantic (Data validation)
-
-### Frontend
-- React
-- React Router
-- Axios (HTTP client)
-- Modern CSS
-- Material-UI components
-- React Calendar
-
-## Prerequisites
-
-- Python 3.8+
-- Node.js 14+
+- psycopg2 (PostgreSQL adapter)
 - Docker and Docker Compose
 
 ## Project Structure
 
 ```
-schedule/
-├── frontend/              # React frontend application
-│   ├── src/
-│   │   ├── components/    # React components
-│   │   ├── services/     # API services
-│   │   └── ...
-├── backend/              # FastAPI backend application
-│   ├── app/
-│   │   ├── __pycache__/  # Python cache files (ignored)
-│   │   ├── models/       # Database models
-│   │   ├── routes/       # API endpoints
-│   │   └── ...
-├── docker-compose.yml    # Docker composition config
-└── requirements.txt      # Python dependencies
+driving_school/
+├── app/
+│   ├── api/              # API routes
+│   │   ├── users.py     
+│   │   ├── packages.py  
+│   │   └── lessons.py   
+│   ├── services/        # Business logic
+│   │   ├── user_service.py
+│   │   ├── package_service.py
+│   │   └── lesson_service.py
+│   ├── db/              # Database utilities
+│   │   ├── connection.py
+│   │   ├── schema.sql
+│   │   └── queries/    
+│   └── schemas/        # Pydantic models
+│       └── models.py
+├── docker-compose.yml   # Docker composition
+├── Dockerfile          # Docker build file
+├── requirements.txt    # Python dependencies
+└── main.py            # Application entry point
 ```
 
-## Setup and Running the Application
+## Prerequisites
+
+- Docker and Docker Compose
+- PostgreSQL 16
+- Python 3.11+
+
+## Getting Started
 
 1. Clone the repository:
-```bash
-git clone <repository-url>
-cd schedule
-```
+   ```bash
+   git clone <repository-url>
+   cd driving-school
+   ```
 
-2. Start the application using Docker Compose:
-```bash
-docker-compose up --build
-```
+2. Start the services using Docker Compose:
+   ```bash
+   docker-compose up -d
+   ```
 
-This will start all services:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- pgAdmin: http://localhost:5050
-
-## Default Credentials
-
-### Application Login
-- Email: admin@example.com
-- Password: admin123
-
-### pgAdmin Access
-1. Visit http://localhost:5050
-2. Login credentials:
-   - Email: admin@admin.com
-   - Password: admin123
-
-3. To add your database server in pgAdmin:
-   - Click "Add New Server"
-   - In "General" tab:
-     - Name: Any name (e.g., "Schedule DB")
-   - In "Connection" tab:
-     - Host: db
-     - Port: 5432
-     - Database: schedule_db
-     - Username: postgres
-     - Password: postgres
+3. The API will be available at:
+   - API: http://localhost:8000
+   - API Documentation: http://localhost:8000/docs
+   - PgAdmin: http://localhost:5050
 
 ## API Documentation
 
-Once the application is running, you can access the API documentation at:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-
-## Development
-
-The application uses Docker volumes for development, so any changes you make to the source code will be reflected immediately:
-- Frontend changes will trigger automatic rebuild
-- Backend changes will trigger automatic reload
+The API documentation is available at `/docs` when the server is running. It provides:
+- Interactive API documentation
+- Request/response schemas
+- Example requests
+- Authentication information
 
 ## Environment Variables
 
-The following environment variables are required:
+Configure the following environment variables in docker-compose.yml or .env file:
 
-### Backend
-- DB_HOST=db
-- DB_USER=postgres
-- DB_PASSWORD=postgres
-- DB_NAME=schedule_db
-- SECRET_KEY=your-secret-key-here
-- ALGORITHM=HS256
-- ACCESS_TOKEN_EXPIRE_MINUTES=30
+```env
+DB_HOST=db
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=driving_school_db
+DB_PORT=5432
+```
 
-## Version Control
+## Development
 
-The project uses Git for version control. The following files and directories are ignored:
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### Frontend
-- node_modules/
-- build/
-- .env files
-- npm debug logs
+2. Run the development server:
+   ```bash
+   uvicorn main:app --reload
+   ```
 
-### Backend
-- __pycache__/
-- virtual environment directories
-- .env files
-- database files
-- migration files (except __init__.py)
+## Database Management
+
+- PgAdmin is available at http://localhost:5050
+- Default credentials:
+  - Email: admin@admin.com
+  - Password: admin123
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
