@@ -204,7 +204,7 @@ async def update_instructor_unavailability(
     try:
         user_service = UserService(db)
         data = unavailability_data.model_dump()
-        result = user_service.update_instructor_unavailability(unavailabil+ity_id, data)
+        result = user_service.update_instructor_unavailability(unavailability_id, data)
         if not result:
             raise HTTPException(status_code=404, detail="Unavailability period not found")
         return result
