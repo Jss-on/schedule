@@ -85,7 +85,39 @@
 3. As an admin, I want to view all scheduled lessons
    ```
    GET /api/lessons
-   Query params: date_from, date_to
+   Query params:
+   - date_from: YYYY-MM-DD (optional, filter lessons from this date)
+   - date_to: YYYY-MM-DD (optional, filter lessons until this date)
+   - instructor_id: int (optional, filter by instructor)
+   - student_id: int (optional, filter by student)
+   - status: string (optional, filter by lesson status: scheduled, completed, cancelled)
+
+   Response:
+   {
+       "lessons": [
+           {
+               "id": 123,
+               "student": {
+                   "id": 456,
+                   "name": "Jane Smith"
+               },
+               "instructor": {
+                   "id": 789,
+                   "name": "John Doe"
+               },
+               "start_time": "2025-02-15T09:00:00",
+               "duration": 3,
+               "status": "scheduled",
+               "vehicle_type": "manual",
+               "notes": "First lesson",
+               "created_at": "2025-02-09T20:46:00"
+           },
+           ...
+       ],
+       "total": 25,
+       "page": 1,
+       "per_page": 20
+   }
    ```
 
 ## Student User Stories

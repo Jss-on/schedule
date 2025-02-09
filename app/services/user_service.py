@@ -5,6 +5,7 @@ from app.db.queries.users import (
     CREATE_INSTRUCTOR, GET_INSTRUCTOR, LIST_INSTRUCTORS, UPDATE_INSTRUCTOR,
     CREATE_STUDENT, GET_STUDENT, LIST_STUDENTS, UPDATE_STUDENT
 )
+from datetime import datetime
 
 class UserService:
     def __init__(self, db: Database):
@@ -148,7 +149,7 @@ class UserService:
             """, unavailability_data)
             return cur.fetchone()
 
-    def get_instructor_unavailability(self, instructor_id: int, start_date: str, end_date: str) -> List[dict]:
+    def get_instructor_unavailability(self, instructor_id: int, start_date: datetime, end_date: datetime) -> List[dict]:
         """Get instructor's unavailability periods within a date range."""
         with self.db.get_cursor() as cur:
             cur.execute("""

@@ -141,16 +141,35 @@ async def update_student(
 @router.get("/students/{student_id}/lessons")
 async def get_student_lessons(
     student_id: int,
-    start_date: datetime,
-    end_date: datetime,
+    start_date: str = Query(..., description="Start date (YYYY-MM-DD)", regex=r'^\d{4}-\d{2}-\d{2}$'),
+    end_date: str = Query(..., description="End date (YYYY-MM-DD)", regex=r'^\d{4}-\d{2}-\d{2}$'),
     db: Database = Depends(get_db)
 ):
-    """Get student's lesson history."""
-    user_service = UserService(db)
-    lessons = user_service.get_student_lessons(student_id, start_date, end_date)
-    if not lessons:
-        raise HTTPException(status_code=404, detail="No lessons found")
-    return lessons
+    """
+    Get student's lesson history.
+    
+    Parameters:
+    - student_id: ID of the student
+    - start_date: Start date in YYYY-MM-DD format (e.g., 2025-02-09)
+    - end_date: End date in YYYY-MM-DD format (e.g., 2025-02-10)
+    """
+    try:
+        # Convert date strings to datetime objects
+        start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
+        
+        # Set end date to end of day
+        end_date_obj = end_date_obj.replace(hour=23, minute=59, second=59)
+
+        user_service = UserService(db)
+        lessons = user_service.get_student_lessons(student_id, start_date_obj, end_date_obj)
+        if not lessons:
+            raise HTTPException(status_code=404, detail="No lessons found")
+        return lessons
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid date format. Please use YYYY-MM-DD format: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 # Instructor unavailability routes
 @router.post("/instructors/{instructor_id}/unavailability", response_model=InstructorUnavailability)
@@ -166,19 +185,40 @@ async def add_instructor_unavailability(
         # Add instructor_id to the data
         data['instructor_id'] = instructor_id
         return user_service.add_instructor_unavailability(data)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @router.get("/instructors/{instructor_id}/unavailability", response_model=List[InstructorUnavailability])
 async def get_instructor_unavailability(
     instructor_id: int,
-    start_date: datetime = Query(..., description="Start date for unavailability search"),
-    end_date: datetime = Query(..., description="End date for unavailability search"),
+    start_date: str = Query(..., description="Start date (YYYY-MM-DD)", regex=r'^\d{4}-\d{2}-\d{2}$'),
+    end_date: str = Query(..., description="End date (YYYY-MM-DD)", regex=r'^\d{4}-\d{2}-\d{2}$'),
     db: Database = Depends(get_db)
 ):
-    """Get instructor's unavailability periods within a date range."""
-    user_service = UserService(db)
-    return user_service.get_instructor_unavailability(instructor_id, start_date, end_date)
+    """
+    Get instructor's unavailability periods within a date range.
+    
+    Parameters:
+    - instructor_id: ID of the instructor
+    - start_date: Start date in YYYY-MM-DD format (e.g., 2025-02-09)
+    - end_date: End date in YYYY-MM-DD format (e.g., 2025-02-10)
+    """
+    try:
+        # Convert date strings to datetime objects
+        start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
+        
+        # Set end date to end of day
+        end_date_obj = end_date_obj.replace(hour=23, minute=59, second=59)
+
+        user_service = UserService(db)
+        return user_service.get_instructor_unavailability(instructor_id, start_date_obj, end_date_obj)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid date format. Please use YYYY-MM-DD format: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @router.delete("/instructors/unavailability/{unavailability_id}")
 async def delete_instructor_unavailability(

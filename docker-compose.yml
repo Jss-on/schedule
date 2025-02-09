@@ -41,11 +41,29 @@ services:
   api:
     build: .
     environment:
+      # Database settings
       - DB_HOST=db
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=driving_school_db
       - DB_PORT=5432
+      
+      # Business hours
+      - BUSINESS_HOURS_START=8
+      - BUSINESS_HOURS_END=17
+      
+      # Pagination settings
+      - DEFAULT_PAGE_SIZE=20
+      - MAX_PAGE_SIZE=100
+      
+      # Time slot settings
+      - TIME_SLOT_INTERVAL=30
+      - MIN_LESSON_DURATION=30
+      - MAX_LESSON_DURATION=180
+      
+      # Validation patterns
+      - PHONE_NUMBER_PATTERN=^\+?1?\d{9,15}$
+      - DATE_FORMAT_PATTERN=^\d{4}-\d{2}-\d{2}$
     volumes:
       - .:/app
     ports:

@@ -30,9 +30,10 @@ class Database:
         try:
             yield conn.cursor(cursor_factory=RealDictCursor)
             conn.commit()
-        except Exception:
+        except Exception as e:
             conn.rollback()
-            raise
+            print(f"Database error: {str(e)}")
+            raise e
         finally:
             self._pool.putconn(conn)
 

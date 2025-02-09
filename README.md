@@ -45,27 +45,65 @@ A comprehensive API-based system for managing driving school operations, built w
 ## Project Structure
 
 ```
-driving_school/
-├── app/
-│   ├── api/              # API routes
-│   │   ├── users.py     
-│   │   ├── packages.py  
-│   │   └── lessons.py   
-│   ├── services/        # Business logic
-│   │   ├── user_service.py
-│   │   ├── package_service.py
-│   │   └── lesson_service.py
-│   ├── db/              # Database utilities
-│   │   ├── connection.py
-│   │   ├── schema.sql
-│   │   └── queries/    
-│   └── schemas/        # Pydantic models
-│       └── models.py
-├── docker-compose.yml   # Docker composition
-├── Dockerfile          # Docker build file
-├── requirements.txt    # Python dependencies
-└── main.py            # Application entry point
+schedule/
+├── app/                  # Backend application
+│   ├── api/             # API routes
+│   │   ├── lessons.py   # Lesson management endpoints
+│   │   ├── packages.py  # Package management endpoints
+│   │   ├── users.py     # User management endpoints
+│   │   └── vehicles.py  # Vehicle management endpoints
+│   ├── db/              # Database related files
+│   │   ├── queries/     # SQL queries organized by domain
+│   │   │   ├── lessons.py
+│   │   │   ├── packages.py
+│   │   │   └── users.py
+│   │   ├── connection.py # Database connection handling
+│   │   ├── init-db.sh   # Database initialization script
+│   │   └── schema.sql   # Database schema definition
+│   ├── docs/            # Project documentation
+│   │   ├── requirements.md
+│   │   ├── system architecture.md
+│   │   ├── system architecture.svg
+│   │   └── user-stories.md
+│   ├── schemas/         # Data validation models
+│   │   └── models.py    # Pydantic models for data validation
+│   └── services/        # Business logic layer
+│       ├── lesson_service.py
+│       ├── package_service.py
+│       ├── user_service.py
+│       └── vehicle_service.py
+├── frontend/           # React frontend application
+│   ├── public/         # Static assets
+│   ├── src/           
+│   │   ├── components/ # React components
+│   │   │   ├── AppointmentForm.js
+│   │   │   ├── Calendar.js
+│   │   │   ├── Dashboard.js
+│   │   │   └── ...
+│   │   └── App.js     # Main application component
+│   ├── Dockerfile     # Frontend container configuration
+│   ├── nginx.conf     # Nginx configuration for serving frontend
+│   └── package.json   # Frontend dependencies
+├── docker-compose.yml  # Docker services configuration
+├── Dockerfile         # Backend container configuration
+├── README.md         # Project documentation
+└── requirements.txt  # Python dependencies
 ```
+
+### Directory Overview
+
+- `app/`: Backend application built with FastAPI
+  - `api/`: REST API endpoints organized by domain
+  - `db/`: Database related code and migrations
+  - `docs/`: Project documentation and architecture diagrams
+  - `schemas/`: Data validation and serialization models
+  - `services/`: Business logic implementation
+
+- `frontend/`: React-based web interface
+  - `src/components/`: Reusable React components
+  - `public/`: Static assets and HTML template
+  
+- Root level configuration files for Docker, Python dependencies, and documentation
 
 ## Prerequisites
 
@@ -98,6 +136,25 @@ The API documentation is available at `/docs` when the server is running. It pro
 - Request/response schemas
 - Example requests
 - Authentication information
+
+## Date and Time Formats
+
+The system accepts multiple date and time formats for user convenience:
+
+### Time Formats (for daily schedules)
+- 24-hour format: `HH:MM` (e.g., "14:30")
+- 12-hour format: `H:MM AM/PM` (e.g., "2:30 PM")
+
+### Date-Time Formats (for lessons and unavailability)
+- ISO format with 24-hour time: `YYYY-MM-DD HH:MM` (e.g., "2024-02-09 14:30")
+- ISO format with 12-hour time: `YYYY-MM-DD H:MM AM/PM` (e.g., "2024-02-09 2:30 PM")
+- UK/EU format with 24-hour time: `DD/MM/YYYY HH:MM` (e.g., "09/02/2024 14:30")
+- UK/EU format with 12-hour time: `DD/MM/YYYY H:MM AM/PM` (e.g., "09/02/2024 2:30 PM")
+
+All times are validated to ensure:
+- End times occur after start times
+- Times are within valid ranges
+- No scheduling conflicts occur
 
 ## Environment Variables
 
